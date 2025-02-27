@@ -6,14 +6,14 @@ PROJECT_NAME="helm-diff"
 PROJECT_GH="databus23/$PROJECT_NAME"
 export GREP_COLOR="never"
 
-# Convert HELM_BIN and HELM_PLUGIN_DIR to unix if cygpath is
+# Convert HELM_BIN and HELM_PLUGIN to unix if cygpath is
 # available. This is the case when using MSYS2 or Cygwin
 # on Windows where helm returns a Windows path but we
 # need a Unix path
 
 if command -v cygpath >/dev/null 2>&1; then
   HELM_BIN="$(cygpath -u "${HELM_BIN}")"
-  HELM_PLUGIN_DIR="$(cygpath -u "${HELM_PLUGIN_DIR}")"
+  HELM_PLUGIN="$(cygpath -u "${HELM_PLUGIN}")"
 fi
 
 [ -z "$HELM_BIN" ] && HELM_BIN=$(command -v helm)
@@ -22,7 +22,7 @@ fi
 
 mkdir -p "$HELM_HOME"
 
-: "${HELM_PLUGIN_DIR:="$HELM_HOME/plugins/helm-diff"}"
+: "${HELM_PLUGIN:="$HELM_HOME/plugins/helm-diff"}"
 
 if [ "$SKIP_BIN_INSTALL" = "1" ]; then
   echo "Skipping binary install"
@@ -85,7 +85,7 @@ verifySupported() {
 
 # getDownloadURL checks the latest available version.
 getDownloadURL() {
-  version=$(git -C "$HELM_PLUGIN_DIR" describe --tags --exact-match 2>/dev/null || :)
+  version=$(git -C "$HELM_PLUGIN" describe --tags --exact-match 2>/dev/null || :)
   if [ "$SCRIPT_MODE" = "install" ] && [ -n "$version" ]; then
     DOWNLOAD_URL="https://github.com/$PROJECT_GH/releases/download/$version/helm-diff-$OS-$ARCH.tgz"
   else
@@ -127,9 +127,9 @@ installFile() {
   if [ "${OS}" = "windows" ]; then
     HELM_TMP_BIN="$HELM_TMP_BIN.exe"
   fi
-  echo "Preparing to install into ${HELM_PLUGIN_DIR}"
-  mkdir -p "$HELM_PLUGIN_DIR/bin"
-  cp "$HELM_TMP_BIN" "$HELM_PLUGIN_DIR/bin"
+  echo "Preparing to install into ${HELM_PLUGIN}"
+  mkdir -p "$HELM_PLUGIN/bin"
+  cp "$HELM_TMP_BIN" "$HELM_PLUGIN/bin"
 }
 
 # exit_trap is executed if on exit (error or not).
